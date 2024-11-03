@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <style>
+      /* 基本設定 */
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: Arial, sans-serif;
+        background-color: #f4f6f9;
+        color: #333;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        min-height: 100vh;
+      }
+
+      h1 {
+        font-size: 1.8em;
+        color: #333;
+        margin-bottom: 1em;
+        text-align: center;
+      }
+
+      /* テーブルのスタイル */
+      table {
+        width: 100%;
+        max-width: 600px;
+        border-collapse: collapse;
+        background-color: #fff;
+        border-radius: 8px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+        margin-bottom: 20px;
+      }
+
+      th,
+      td {
+        padding: 12px 16px;
+        text-align: left;
+        font-size: 1em;
+      }
+
+      th {
+        background-color: #007bff;
+        color: #fff;
+        font-weight: bold;
+      }
+
+      tr:nth-child(even) td {
+        background-color: #f8f9fa;
+      }
+
+      td {
+        color: #555;
+      }
+
+      /* スクロールバー（モダンブラウザ用） */
+      ::-webkit-scrollbar {
+        width: 8px;
+      }
+
+      ::-webkit-scrollbar-thumb {
+        background-color: #007bff;
+        border-radius: 4px;
+      }
+
+      /* ボタンのスタイル */
+      .download-btn {
+        padding: 10px 20px;
+        font-size: 1em;
+        color: #fff;
+        background-color: #28a745;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+      }
+    </style>
+    <title>ユーザー情報の取得</title>
+  </head>
+  <body>
+    <h1>ユーザー情報の取得</h1>
+
+    <table border="1">
+      <tr>
+        <th>情報</th>
+        <th>値</th>
+      </tr>
+      <tr>
+        <td>ユーザーエージェント</td>
+        <td id="userAgent"></td>
+      </tr>
+      <tr>
+        <td>プラットフォーム</td>
+        <td id="platform"></td>
+      </tr>
+      <tr>
+        <td>言語</td>
+        <td id="language"></td>
+      </tr>
+      <tr>
+        <td>画面幅</td>
+        <td id="screenWidth"></td>
+      </tr>
+      <tr>
+        <td>画面高さ</td>
+        <td id="screenHeight"></td>
+      </tr>
+      <tr>
+        <td>色深度</td>
+        <td id="colorDepth"></td>
+      </tr>
+      <tr>
+        <td>タイムゾーン</td>
+        <td id="timeZone"></td>
+      </tr>
+      <tr>
+        <td>ローカルタイム</td>
+        <td id="localTime"></td>
+      </tr>
+      <tr>
+        <td>ネットワークタイプ</td>
+        <td id="networkType"></td>
+      </tr>
+      <tr>
+        <td>ダウンリンク速度</td>
+        <td id="downlink"></td>
+      </tr>
+      <tr>
+        <td>RTT</td>
+        <td id="rtt"></td>
+      </tr>
+      <tr>
+        <td>緯度</td>
+        <td id="latitude"></td>
+      </tr>
+      <tr>
+        <td>経度</td>
+        <td id="longitude"></td>
+      </tr>
+      <tr>
+        <td>位置精度</td>
+        <td id="accuracy"></td>
+      </tr>
+      <tr>
+        <td>クリップボードのテキスト</td>
+        <td id="clipboardText"></td>
+      </tr>
+      <tr>
+        <td>メモリ容量</td>
+        <td id="deviceMemory"></td>
+      </tr>
+      <tr>
+        <td>タッチコネクト点の数</td>
+        <td id="maxtouchpoints"></td>
+      </tr>
+      <tr>
+        <td>オンライン状態</td>
+        <td id="online"></td>
+      </tr>
+      <tr>
+        <td>インストールされているプラグイン</td>
+        <td id="plugins"></td>
+      </tr>
+    </table>
+
+    <button class="download-btn" onclick="downloadUserInfo()">
+      情報をJSONでダウンロード
+    </button>
+
+    <script>
+      async function readClipboard() {
+        try {
+          const text = await navigator.clipboard.readText();
+          document.getElementById("clipboardText").textContent = text;
+        } catch (error) {
+          console.error("クリップボードの読み取りに失敗しました:", error);
+          document.getElementById("clipboardText").textContent =
+            "クリップボードの読み取りに失敗しました。";
+        }
+      }
+
+      // ユーザー情報を取得する関数
+      function getUserInfo() {
+        const info = {};
+
+        // ブラウザ情報
+        info.userAgent = navigator.userAgent;
+        info.platform = navigator.platform;
+        info.language = navigator.language;
+
+        // 画面情報
+        info.screenWidth = screen.width;
+        info.screenHeight = screen.height;
+        info.colorDepth = screen.colorDepth;
+
+        // タイムゾーンとローカルタイム
+        info.timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+        info.localTime = new Date().toString();
+
+        // ネットワーク情報（対応ブラウザのみ）
+        if (navigator.connection) {
+          info.networkType = navigator.connection.effectiveType;
+          info.downlink = navigator.connection.downlink;
+          info.rtt = navigator.connection.rtt;
+          info.deviceMemory = navigator.deviceMemory;
+          info.maxtouchpoints = navigator.maxTouchPoints;
+          info.online = navigator.onLine;
+          info.plugins = Array.from(navigator.plugins)
+            .map((plugin) => plugin.name)
+            .join(", ");
+        }
+
+        // 各要素にデータをセット
+        document.getElementById("userAgent").textContent = info.userAgent;
+        document.getElementById("platform").textContent = info.platform;
+        document.getElementById("language").textContent = info.language;
+        document.getElementById("screenWidth").textContent = info.screenWidth;
+        document.getElementById("screenHeight").textContent = info.screenHeight;
+        document.getElementById("colorDepth").textContent = info.colorDepth;
+        document.getElementById("timeZone").textContent = info.timeZone;
+        document.getElementById("localTime").textContent = info.localTime;
+
+        if (navigator.connection) {
+          document.getElementById("networkType").textContent = info.networkType;
+          document.getElementById("downlink").textContent = info.downlink;
+          document.getElementById("rtt").textContent = info.rtt;
+          document.getElementById("deviceMemory").textContent =
+            info.deviceMemory;
+          document.getElementById("maxtouchpoints").textContent =
+            info.maxtouchpoints;
+          document.getElementById("online").textContent = "オンライン";
+          document.getElementById("plugins").textContent = info.plugins;
+        } else {
+          document.getElementById("networkType").textContent =
+            "対応していません";
+          document.getElementById("downlink").textContent = "対応していません";
+          document.getElementById("rtt").textContent = "対応していません";
+          document.getElementById("deviceMemory").textContent =
+            "対応していません";
+          document.getElementById("maxtouchpoints").textContent =
+            "対応していません";
+          document.getElementById("online").textContent = "オフライン";
+          document.getElementById("plugins").textContent = "対応していません";
+        }
+
+        // 位置情報（許可が必要）
+        if (navigator.geolocation) {
+          navigator.geolocation.getCurrentPosition(
+            (position) => {
+              document.getElementById("latitude").textContent =
+                position.coords.latitude;
+              document.getElementById("longitude").textContent =
+                position.coords.longitude;
+              document.getElementById("accuracy").textContent =
+                position.coords.accuracy;
+              info.latitude = position.coords.latitude;
+              info.longitude = position.coords.longitude;
+              info.accuracy = position.coords.accuracy;
+            },
+            (error) => {
+              document.getElementById("latitude").textContent = "取得失敗";
+              document.getElementById("longitude").textContent = "取得失敗";
+              document.getElementById("accuracy").textContent = "取得失敗";
+            }
+          );
+        } else {
+          document.getElementById("latitude").textContent = "非対応";
+          document.getElementById("longitude").textContent = "非対応";
+          document.getElementById("accuracy").textContent = "非対応";
+        }
+
+        readClipboard();
+        return info;
+      }
+
+      // JSONファイルをダウンロードする関数
+      function downloadUserInfo() {
+        const userInfo = getUserInfo();
+        const jsonStr = JSON.stringify(userInfo, null, 2);
+        const blob = new Blob([jsonStr], { type: "application/json" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = "user_info.json";
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+      }
+
+      // ページロード時に情報を取得
+      window.onload = getUserInfo;
+    </script>
+  </body>
+</html>
